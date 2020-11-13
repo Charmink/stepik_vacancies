@@ -15,8 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from vacancies.views import MainView, AllVacanciesView, SpecialVacanciesView, CompanyView, VacancyView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('/', )
+    path('', MainView.as_view(), name='main'),
+    path('vacancies', AllVacanciesView.as_view(), name='all_vacancies'),
+    path('vacancies/cat/<str:speciality>', SpecialVacanciesView.as_view(),
+         name='special_vacancies'),
+    path('vacancies/<int:vac_id>', VacancyView.as_view(), name='vacancy')
 ]
