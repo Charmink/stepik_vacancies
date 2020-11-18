@@ -12,7 +12,7 @@ class Company(models.Model):
 class Specialty(models.Model):
     code = models.CharField(max_length=64)
     title = models.CharField(max_length=64)
-    picture = models.CharField(max_length=500)
+    picture = models.CharField(max_length=600)
 
 
 class Vacancy(models.Model):
@@ -24,5 +24,3 @@ class Vacancy(models.Model):
     salary_min = models.IntegerField()
     salary_max = models.IntegerField()
     published_at = models.DateTimeField()
-
-
