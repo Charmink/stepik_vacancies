@@ -11,11 +11,17 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
+DEBUG = True
+MEDIA_ROOT = 'media'
+MEDIA_URL = '/media/'
+if DEBUG:
+    STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
@@ -23,7 +29,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '6@o6*k-tr3x2hwc3hb-0i08v97+t&oo*$ktq!vo0tasg*9$5gg'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+
 
 ALLOWED_HOSTS = ['127.0.0.1']
 
@@ -37,7 +48,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'vacancies'
+    'vacancies',
+    'crispy_forms'
 ]
 
 MIDDLEWARE = [
@@ -118,4 +130,3 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
