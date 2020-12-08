@@ -19,8 +19,16 @@
           <div style="line-height: 1.8;">
             {{ object.description|safe }}
           </div>
+          {% if user.is_authenticated %}
           {% load crispy_forms_tags %}
             {% crispy form form.helper %}
+          {% else %}
+           <p class="alert alert-info" role="alert">Чтобы отправить отклик зарегистрируйтесь или авторизуйтесь!</p>
+           <div class="row">
+             <a type="button" class="col-3 ml-3 mr-1 btn btn-info" href="{% url 'login' %}">Войти</a>
+             <a type="button" class="col-3 btn btn-info" href="{% url 'signup' %}">Зарегистрироваться</a>
+           </div>
+          {% endif %}
         </section>
       </div>
     </div>

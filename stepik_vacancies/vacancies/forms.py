@@ -1,17 +1,47 @@
 from django import forms
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Submit, Reset, ButtonHolder
+from crispy_forms.layout import Layout, Fieldset, Submit, Reset, ButtonHolder, Field
 from crispy_forms.bootstrap import PrependedText, AppendedText, FormActions
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, User, AuthenticationForm
 from .models import Application, Company, Vacancy, Resume
 
 
-class MyUserCreationForm(UserCreationForm):
+class MyUserCreationForm(forms.ModelForm):
+    first_name = forms.CharField(required=True, label='Имя')
+    last_name = forms.CharField(required=True, label='Фамилия')
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-        self.helper.add_input(Submit('submit', 'Зарегистривоваться'))
+        self.helper.layout = Layout(ButtonHolder(
+            Fieldset('', 'username', 'first_name', 'last_name', 'password'),
+            Submit('submit', 'Зарегистрироваться', css_class='btn btn-primary btn-lg btn-block')))
+
+    class Meta:
+
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'password']
+        labels = {'username': 'Логин', 'first_name': 'Имя', 'last_name': 'Фамилия',
+                  'password': 'Пароль'}
+        widget = {
+            'username': forms.TextInput(attrs={'type': "text", 'id': "inputLogin", 'class': "form-control"}),
+            'first_name': forms.TextInput(attrs={'type': "text", 'id': "inputName", 'class': "form-control"}),
+            'last_name': forms.TextInput(attrs={'type': "text", 'id': "inputSurname", 'class': "form-control"}),
+            'password': forms.TextInput(attrs={'type': "password", 'id': "inputPassword", 'class': "form-control"})
+        }
+
+
+class MyAuthenticationForm(AuthenticationForm):
+    username = forms.CharField(required=True, label='Логин')
+    password = forms.CharField(required=True, label='Пароль', widget=forms.PasswordInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.layout = Layout(ButtonHolder(Fieldset('', 'username', 'password'),
+                                                 Submit('submit', 'Войти', css_class='btn btn-primary btn-lg btn-block')))
 
 
 class ApplicationForm(forms.ModelForm):

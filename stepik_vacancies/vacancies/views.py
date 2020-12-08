@@ -2,7 +2,7 @@ from django.views.generic import ListView, DetailView, TemplateView, View, Updat
 from .models import Specialty, Company, Vacancy, Application, Resume
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import ApplicationForm, MyCompanyForm, MyVacancyForm
+from .forms import ApplicationForm, MyCompanyForm, MyVacancyForm, MyAuthenticationForm
 from django.views.generic import CreateView
 from django.contrib.auth.views import LogoutView, LoginView
 from django.urls import reverse_lazy
@@ -80,6 +80,7 @@ class MySignupView(CreateView):
 class MyLoginView(LoginView):
     redirect_authenticated_user = True
     template_name = 'vacancies/login.html'
+    form_class = MyAuthenticationForm
 
 
 class SendView(TemplateView):
