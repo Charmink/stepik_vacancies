@@ -18,6 +18,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = True
 MEDIA_ROOT = 'media'
 MEDIA_URL = '/media/'
+STATIC_URL = "/static/"
 if DEBUG:
     STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 else:

@@ -16,7 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from vacancies.views import MainView, AllVacanciesView, SpecialVacanciesView, CompanyView, \
-    VacancyView, SendView, MyCompanyView, MyLoginView, MySignupView, MyVacanciesView, MyVacancyView
+    VacancyView, SendView, MyCompanyInviteToCreateView, MyCompanyCreateView, MyLoginView, \
+    MySignupView, MyVacanciesListView, MyVacancyCreateView, MyCompanyUpdateView, \
+    MyVacancyUpdateView, SearchView, MyResumeInviteToCreateView, MyResumeCreateView, \
+    MyResumeUpdateView
 from django.contrib.auth.views import LogoutView
 from django.conf import settings
 from django.conf.urls.static import static
@@ -31,9 +34,17 @@ urlpatterns = [
     path('vacancies/<int:pk>/', VacancyView.as_view(), name='vacancy'),
     path('companies/<int:pk>/', CompanyView.as_view(), name='company'),
     path('vacancies/<int:pk>/send/', SendView.as_view(), name='send_vacancy'),
-    path('mycompany/', MyCompanyView.as_view(), name='my_company'),
-    path('mycompany/vacancies/', MyVacanciesView.as_view(), name='my_vacancies'),
-    path('mycompany/vacancies/<int:pk>/', MyVacancyView.as_view(), name='my_vacancy'),
+    path('mycompany/', MyCompanyInviteToCreateView.as_view(), name='my_company'),
+    path('mycompany/create/', MyCompanyCreateView.as_view(), name='my_company_create'),
+    path('mycompany/update/<int:pk>', MyCompanyUpdateView.as_view(), name='my_company_update'),
+    path('mycompany/vacancies/', MyVacanciesListView.as_view(), name='my_vacancies'),
+    path('mycompany/vacancies/create/', MyVacancyCreateView.as_view(), name='my_vacancy_create'),
+    path('mycompany/vacancies/update/<int:pk>/', MyVacancyUpdateView.as_view(),
+         name='my_vacancy_update'),
+    path('resume/', MyResumeInviteToCreateView.as_view(), name='my_resume'),
+    path('resume/create/', MyResumeCreateView.as_view(), name='my_resume_create'),
+    path('resume/update/<int:pk>', MyResumeUpdateView.as_view(), name='my_resume_update'),
+    path('search', SearchView.as_view(), name='search'),
     path('login/', MyLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('signup/', MySignupView.as_view(), name='signup')

@@ -11,8 +11,7 @@ class Company(models.Model):
                              width_field='width_field')
     height_field = models.PositiveIntegerField(default=150)
     width_field = models.PositiveIntegerField(default=150)
-    owner = models.ForeignKey(User, related_name='companies', on_delete=models.CASCADE,
-                              default=User.objects.use_in_migrations)
+    owner = models.OneToOneField(User, related_name='companies', on_delete=models.CASCADE)
 
 
 class Specialty(models.Model):
@@ -22,6 +21,9 @@ class Specialty(models.Model):
                                 width_field='width_field')
     height_field = models.PositiveIntegerField(default=150)
     width_field = models.PositiveIntegerField(default=150)
+
+    def __str__(self):
+        return f'{self.title}'
 
 
 class Vacancy(models.Model):
@@ -41,3 +43,24 @@ class Application(models.Model):
     written_cover_letter = models.TextField()
     vacancy = models.ForeignKey(Vacancy, related_name='applications', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='applications', on_delete=models.CASCADE)
+
+
+class Resume(models.Model):
+    owner = models.OneToOneField(User, related_name='resume', on_delete=models.CASCADE)
+    name = models.CharField(max_length=64)
+    surname = models.CharField(max_length=64)
+    STATUS_CHOICES = [('Не ищу работу', 'Не ищу работу'),
+                      ('Рассматриваю предложения', 'Рассматриваю предложения'),
+                      ('Ищу работу', 'Ищу работу')]
+    status = models.CharField(max_length=64, choices=STATUS_CHOICES, default='Ищу работу')
+    salary = models.IntegerField()
+    specialty = models.ForeignKey(Specialty, related_name='resumes', on_delete=models.CASCADE)
+    GRAGE_CHOICES = [('Стажер', 'Стажер'),
+                     ('Джуниор', 'Джуниор'),
+                     ('Миддл', 'Миддл'),
+                     ('Синьор', 'Синьор'),
+                     ('Лид', 'Лид')]
+    grage = models.CharField(max_length=64, choices=GRAGE_CHOICES, default='Стажер')
+    education = models.TextField()
+    experience = models.TextField()
+    portfolio = models.TextField()

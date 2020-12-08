@@ -1,20 +1,22 @@
-from django.views.generic import ListView, DetailView, TemplateView
-from .models import Specialty, Company, Vacancy, Application
+from django.views.generic import ListView, DetailView, TemplateView, View, UpdateView, FormView
+from .models import Specialty, Company, Vacancy, Application, Resume
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .forms import ApplicationForm
+from .forms import ApplicationForm, MyCompanyForm, MyVacancyForm
 from django.views.generic import CreateView
 from django.contrib.auth.views import LogoutView, LoginView
 from django.urls import reverse_lazy
-from .forms import MyUserCreationForm, ApplicationForm
+from .forms import MyUserCreationForm, ApplicationForm, MyResumeForm
 from django.urls import resolve
+from django.shortcuts import render, redirect
+import datetime
 
 
 class MainView(ListView):
     template_name = 'vacancies/index.html'
     model = Specialty
 
-    def get_context_data(self, *, object_list=None, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(MainView, self).get_context_data(**kwargs)
         context['companies'] = Company.objects.all()
         print(context['object_list'][1].vacancies.all())
@@ -84,13 +86,124 @@ class SendView(TemplateView):
     template_name = 'vacancies/sent.html'
 
 
-class MyCompanyView(DetailView):
-    pass
+class MyCompanyInviteToCreateView(View):
+
+    def get(self, request, *args, **kwargs):
+        company = Company.objects.filter(owner=request.user)
+        if company:
+            return redirect('my_company_update', pk=company.first().id)
+        else:
+            return render(request, template_name='vacancies/company-create.html')
 
 
-class MyVacanciesView(ListView):
-    pass
+class MyCompanyCreateView(CreateView):
+    template_name = 'vacancies/company-edit.html'
+    model = Company
+    form_class = MyCompanyForm
+
+    def form_valid(self, form):
+        company = form.save(commit=False)
+        company.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('my_company_update',
+                            kwargs={'pk': Company.objects.filter(owner=self.request.user).first().id})
 
 
-class MyVacancyView(DetailView):
-    pass
+class MyCompanyUpdateView(UpdateView):
+    form_class = MyCompanyForm
+    model = Company
+    template_name = 'vacancies/company-edit.html'
+
+    def get_success_url(self):
+        return reverse_lazy('my_company_update',
+                            kwargs={'pk': Company.objects.filter(owner=self.request.user).first().id})
+
+
+class MyVacanciesListView(ListView):
+    model = Vacancy
+    template_name = 'vacancies/vacancy-list.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(MyVacanciesListView, self).get_context_data(**kwargs)
+        company = Company.objects.filter(owner=self.request.user)
+        if company:
+            context['user_vacancies'] = Vacancy.objects.filter(company=company[0]).order_by('-published_at')
+
+        context['company'] = company
+        print(context)
+        return context
+
+
+class MyVacancyCreateView(CreateView):
+    template_name = 'vacancies/vacancy-edit.html'
+    model = Vacancy
+    form_class = MyVacancyForm
+    success_url = reverse_lazy('my_vacancies')
+
+    def form_valid(self, form):
+        vacancy = form.save(commit=False)
+        vacancy.company = Company.objects.filter(owner=self.request.user).first()
+        vacancy.published_at = datetime.datetime.now()
+        return super().form_valid(form)
+
+
+class MyVacancyUpdateView(UpdateView):
+    template_name = 'vacancies/vacancy-edit.html'
+    model = Vacancy
+    form_class = MyVacancyForm
+
+    def get_success_url(self):
+        return reverse_lazy('my_vacancy_update',
+                            kwargs={'pk': self.request.resolver_match.kwargs.get('pk')})
+
+
+class SearchView(ListView):
+    model = Vacancy
+    template_name = 'vacancies/search.html'
+
+    def get_queryset(self):
+        arg = self.request.GET.get('query')
+        print(arg)
+        vacancies = Vacancy.objects.filter(title__icontains=arg)
+        return vacancies
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(SearchView, self).get_context_data(**kwargs)
+        context['query'] = self.request.GET.get('query')
+        return context
+
+
+class MyResumeInviteToCreateView(View):
+    def get(self, request, *args, **kwargs):
+        resume = Resume.objects.filter(owner=request.user)
+        if resume:
+            return redirect('my_resume_update', pk=resume.first().id)
+        else:
+            return render(request, template_name='vacancies/resume-create.html')
+
+
+class MyResumeCreateView(CreateView):
+    template_name = 'vacancies/resume-edit.html'
+    model = Resume
+    form_class = MyResumeForm
+
+    def form_valid(self, form):
+        resume = form.save(commit=False)
+        resume.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('my_resume_update',
+                            kwargs={'pk': Resume.objects.filter(owner=self.request.user).first().id})
+
+
+class MyResumeUpdateView(UpdateView):
+    template_name = 'vacancies/resume-edit.html'
+    model = Resume
+    form_class = MyResumeForm
+
+    def get_success_url(self):
+        return reverse_lazy('my_resume_update',
+                            kwargs={'pk': self.request.resolver_match.kwargs.get('pk')})
